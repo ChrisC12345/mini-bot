@@ -4,6 +4,9 @@
 
 package team3647.frc2025.robot;
 
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -17,8 +20,10 @@ public class RobotContainer {
   DrivetrainCommands driveCommand = new DrivetrainCommands(drivetrain);
   private final Joysticks mainController = new Joysticks(0);
 
+
+
   public RobotContainer() {
-    CommandScheduler.getInstance().registerSubsystem();
+    CommandScheduler.getInstance().registerSubsystem(drivetrain);
     drivetrain.setDefaultCommand(driveCommand.drive(mainController::getLeftStickY,mainController::getRightStickX));
     configureBindings();
   }
