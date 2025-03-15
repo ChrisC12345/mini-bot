@@ -1,6 +1,5 @@
 package team3647.frc2025.commands;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -26,11 +25,13 @@ public class DrivetrainCommands {
             drivetrain);
     }
 
-    public Command turnwheel(){
+    public Command turnWheel(){
+        
+        double motorPosition = drivetrain.getRightMotorPosition();
 
-      return Commands.run(
-         () -> {drivetrain.turn(90);},
-
-        drivetrain);
+        return Commands.run(
+            () -> {drivetrain.turn(motorPosition);},
+            drivetrain);
     }
+        
 } 

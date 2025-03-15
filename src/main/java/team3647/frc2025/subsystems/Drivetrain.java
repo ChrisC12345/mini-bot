@@ -32,7 +32,7 @@ public class Drivetrain implements PeriodicSubsystem {
     }
 
     public void drive(double forward, double rotation) {
-        // call drive method       
+        // call drive method 
         WheelSpeeds wheelspeeds = DifferentialDrive.arcadeDriveIK(forward, rotation, false);
         periodicIo.leftOutput = wheelspeeds.left;
         periodicIo.rightOutput = wheelspeeds.right;
@@ -40,6 +40,10 @@ public class Drivetrain implements PeriodicSubsystem {
 
     public void turn(double setPoint){
         periodicIo.rightOutput = pid.calculate(rightMotor.getEncoder().getPosition(), setPoint);
+    }
+
+    public double getRightMotorPosition(){
+        return rightMotor.getEncoder().getPosition();
     }
 
     @Override
