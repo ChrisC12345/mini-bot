@@ -19,7 +19,7 @@ public class Drivetrain implements PeriodicSubsystem {
 
     private final SparkMax leftMotor = new SparkMax(4, MotorType.kBrushless);
     private final SparkMax rightMotor = new SparkMax(5, MotorType.kBrushless);
-    private final PIDController pid = new PIDController(0, 0, 0);
+    private final PIDController pid = new PIDController(0.1, 0, 0);
     private final PeriodicIO periodicIo = new PeriodicIO();
 
     // write drive method
@@ -39,6 +39,7 @@ public class Drivetrain implements PeriodicSubsystem {
     }
 
     public void turn(double setPoint){
+        // turn wheel 90 degrees
         periodicIo.rightOutput = pid.calculate(rightMotor.getEncoder().getPosition(), setPoint);
     }
 

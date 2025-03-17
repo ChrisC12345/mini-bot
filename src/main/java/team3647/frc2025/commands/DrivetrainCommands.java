@@ -4,6 +4,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
+
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+
 import team3647.frc2025.subsystems.Drivetrain;
 
 public class DrivetrainCommands {
@@ -24,14 +27,40 @@ public class DrivetrainCommands {
             },
             drivetrain);
     }
-
+ 
     public Command turnWheel(){
         
-        double motorPosition = drivetrain.getRightMotorPosition();
+        double motorPosition = drivetrain.getRightMotorPosition()+1.25;
 
         return Commands.run(
-            () -> {drivetrain.turn(motorPosition);},
-            drivetrain);
+            () -> {SmartDashboard.putNumber("Right", drivetrain.getRightMotorPosition());
+                drivetrain.turn(motorPosition);},
+            drivetrain).until(() -> motorPosition-0.05 <= drivetrain.getRightMotorPosition() 
+            && drivetrain.getRightMotorPosition() <= motorPosition+0.05);
     }
+ 
+  /* 
+    public class turnWheel extends Command {
+
+        double motorPosition;
+
+        @Override
+        public void initialize(){
+            this.motorPosition = drivetrain.getRightMotorPosition();
+        }
+
+        @Override
+        public void execute(){
+            drivetrain.turn(this.motorPosition);
+        }
+
+        @Override 
+        public boolean isFinished(){
+            return motorPosition-0.05 <= drivetrain.getRightMotorPosition() 
+            && drivetrain.getRightMotorPosition() <= motorPosition+0.05;
+        }
+    } 
+    public turnWheel turnWheel = new turnWheel();
+  */
         
 } 

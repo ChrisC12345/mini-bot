@@ -15,7 +15,7 @@ public class RobotContainer {
   
   private final Drivetrain drivetrain = new Drivetrain();
   DrivetrainCommands driveCommand = new DrivetrainCommands(drivetrain);
-  private final Joysticks mainController = new Joysticks(0);
+  private final Joysticks mainController = new Joysticks(1);
 
 
 
@@ -25,6 +25,7 @@ public class RobotContainer {
 
     mainController.buttonA.onTrue(driveCommand.turnWheel());
 
+    
     configureBindings();
   }
 
