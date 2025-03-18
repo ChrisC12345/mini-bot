@@ -5,8 +5,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import java.util.function.DoubleSupplier;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-
 import team3647.frc2025.subsystems.Drivetrain;
 
 public class DrivetrainCommands {
@@ -24,19 +22,20 @@ public class DrivetrainCommands {
                 SmartDashboard.putNumber("Drive", drive.getAsDouble());
                 SmartDashboard.putNumber("Turn", turn.getAsDouble()); 
                 drivetrain.drive(drive.getAsDouble(),turn.getAsDouble());
-            },
-            drivetrain);
+            },drivetrain);
     }
  
     public Command turnWheel(){
         
-        double motorPosition = drivetrain.getRightMotorPosition()+1.25;
+        double setPoint = drivetrain.getRightMotorPosition()+1.25;
+        SmartDashboard.putNumber("Setpoint", drivetrain.getRightMotorPosition()+1.25);
 
         return Commands.run(
             () -> {SmartDashboard.putNumber("Right", drivetrain.getRightMotorPosition());
-                drivetrain.turn(motorPosition);},
-            drivetrain).until(() -> motorPosition-0.05 <= drivetrain.getRightMotorPosition() 
-            && drivetrain.getRightMotorPosition() <= motorPosition+0.05);
+                drivetrain.turn(setPoint);},
+            drivetrain)
+            .until(() -> setPoint-0.05 <= drivetrain.getRightMotorPosition() 
+            && drivetrain.getRightMotorPosition() <= setPoint+0.05);
     }
  
   /* 
