@@ -21,21 +21,27 @@ public class DrivetrainCommands {
             () -> {
                 SmartDashboard.putNumber("Drive", drive.getAsDouble());
                 SmartDashboard.putNumber("Turn", turn.getAsDouble()); 
+                SmartDashboard.putNumber("Left", drivetrain.getLeftMotorPosition());
                 drivetrain.drive(drive.getAsDouble(),turn.getAsDouble());
             },drivetrain);
     }
  
     public Command turnWheel(){
-        
-        double setPoint = drivetrain.getRightMotorPosition()+1.25;
-        SmartDashboard.putNumber("Setpoint", drivetrain.getRightMotorPosition()+1.25);
+        //drivetrain.setLeftMotorPosition();
+        double setPoint = drivetrain.getLeftMotorPosition() + 1.25;
+        SmartDashboard.putNumber("Left", drivetrain.getLeftMotorPosition());
+        SmartDashboard.putNumber("Setpoint", setPoint);
+
 
         return Commands.run(
-            () -> {SmartDashboard.putNumber("Right", drivetrain.getRightMotorPosition());
-                drivetrain.turn(setPoint);},
+            () -> {
+                SmartDashboard.putNumber("Setpoint", setPoint);
+                SmartDashboard.putNumber("Left", drivetrain.getLeftMotorPosition());
+                drivetrain.turn(setPoint);
+            },
             drivetrain)
-            .until(() -> setPoint-0.05 <= drivetrain.getRightMotorPosition() 
-            && drivetrain.getRightMotorPosition() <= setPoint+0.05);
+            .until(() -> (setPoint-0.2 < drivetrain.getLeftMotorPosition()) 
+            && (drivetrain.getLeftMotorPosition() < setPoint+0.2));
     }
  
   /* 
