@@ -6,6 +6,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import team3647.lib.PeriodicSubsystem;
 
 public class Drivetrain implements PeriodicSubsystem {
@@ -18,7 +19,7 @@ public class Drivetrain implements PeriodicSubsystem {
 
     private final SparkMax leftMotor = new SparkMax(4, MotorType.kBrushless);
     private final SparkMax rightMotor = new SparkMax(5, MotorType.kBrushless);
-    private final PIDController pid = new PIDController(0.0001, 0, 0);
+    private final PIDController pid = new PIDController(0.08, 0, 0);
     private final PeriodicIO periodicIo = new PeriodicIO();
 
     // write drive method
@@ -38,10 +39,9 @@ public class Drivetrain implements PeriodicSubsystem {
     }
 
     public void turn(double setPoint){
-        // turn wheel x degrees
-        //periodicIo.leftOutput = pid.calculate(rightMotor.getEncoder().getPosition(), setPoint);
-        periodicIo.leftOutput = (setPoint-rightMotor.getEncoder().getPosition())*0.0001;
-
+        // turn wheel to setPoint
+        periodicIo.leftOutput = pid.calculate(leftMotor.getEncoder().getPosition(), setPoint);
+        SmartDashboard.putNumber("PID Calc", periodicIo.leftOutput);
     }
     
     public double getLeftMotorPosition(){

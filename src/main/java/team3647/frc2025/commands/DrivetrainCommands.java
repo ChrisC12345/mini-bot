@@ -25,47 +25,51 @@ public class DrivetrainCommands {
                 drivetrain.drive(drive.getAsDouble(),turn.getAsDouble());
             },drivetrain);
     }
- 
+
     public Command turnWheel(){
-        //drivetrain.setLeftMotorPosition();
-        double setPoint = drivetrain.getLeftMotorPosition() + 1.25;
-        SmartDashboard.putNumber("Left", drivetrain.getLeftMotorPosition());
-        SmartDashboard.putNumber("Setpoint", setPoint);
+    
+        return new Command() {
 
-
-        return Commands.run(
-            () -> {
-                SmartDashboard.putNumber("Setpoint", setPoint);
-                SmartDashboard.putNumber("Left", drivetrain.getLeftMotorPosition());
-                drivetrain.turn(setPoint);
-            },
-            drivetrain)
-            .until(() -> (setPoint-0.2 < drivetrain.getLeftMotorPosition()) 
-            && (drivetrain.getLeftMotorPosition() < setPoint+0.2));
-    }
- 
-  /* 
-    public class turnWheel extends Command {
-
-        double motorPosition;
-
+        double setPoint;
+        
         @Override
         public void initialize(){
-            this.motorPosition = drivetrain.getRightMotorPosition();
+            setPoint = drivetrain.getLeftMotorPosition()+1.25;
         }
 
         @Override
         public void execute(){
-            drivetrain.turn(this.motorPosition);
+            drivetrain.turn(setPoint);
         }
 
         @Override 
         public boolean isFinished(){
-            return motorPosition-0.05 <= drivetrain.getRightMotorPosition() 
-            && drivetrain.getRightMotorPosition() <= motorPosition+0.05;
+            return setPoint-0.2 <= drivetrain.getLeftMotorPosition() 
+            && drivetrain.getLeftMotorPosition() <= setPoint+0.2;
         }
-    } 
-    public turnWheel turnWheel = new turnWheel();
-  */
-        
+    };
+} 
+
+ /* 
+    public Command turnWheel(){
+        //drivetrain.setLeftMotorPosition();
+        double starting = drivetrain.getLeftMotorPosition();
+        SmartDashboard.putNumber("Left", drivetrain.getLeftMotorPosition());
+        SmartDashboard.putNumber("SetpointInit", starting+5.0);
+
+
+        return Commands.run(
+            () -> {
+                SmartDashboard.putNumber("SetpointPeriodic", starting+5.0);
+                SmartDashboard.putNumber("Left", drivetrain.getLeftMotorPosition());
+                drivetrain.turn(starting+0.5);
+            },
+            drivetrain)
+            .until(() -> (starting+0.5-0.2 < drivetrain.getLeftMotorPosition()) 
+            && (drivetrain.getLeftMotorPosition() < starting+5.0+0.2))
+            .finallyDo(()->SmartDashboard.putNumber("Command End",starting+5.0));
+    }
+*/
+
+
 } 
