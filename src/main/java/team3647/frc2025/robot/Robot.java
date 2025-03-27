@@ -29,7 +29,7 @@ public class Robot extends LoggedRobot {
   public Robot() {
 
     if (isReal()) {
-        Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+        Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/logs")); // Log to a USB stick ("/U/logs")
         Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
     } else {
         setUseTiming(false); // Run as fast as possible

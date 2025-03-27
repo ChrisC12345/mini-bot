@@ -8,14 +8,15 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import team3647.frc2025.commands.DrivetrainCommands;
+import team3647.frc2025.constants.DrivetrainConstants;
 import team3647.frc2025.subsystems.Drivetrain;
 import team3647.lib.inputs.Joysticks;
 
 public class RobotContainer {
   
-  private final Drivetrain drivetrain = new Drivetrain();
+  private final Drivetrain drivetrain = new Drivetrain(DrivetrainConstants.leftMotor, DrivetrainConstants.rightMotor);
   DrivetrainCommands driveCommand = new DrivetrainCommands(drivetrain);
-  private final Joysticks mainController = new Joysticks(1);
+  private final Joysticks mainController = new Joysticks(0);
 
 
 
