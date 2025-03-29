@@ -14,7 +14,8 @@ import team3647.lib.inputs.Joysticks;
 
 public class RobotContainer {
   
-  private final Drivetrain drivetrain = new Drivetrain(DrivetrainConstants.leftMotor, DrivetrainConstants.rightMotor);
+  private final Drivetrain drivetrain = new Drivetrain(
+    DrivetrainConstants.leftMotor, DrivetrainConstants.rightMotor, DrivetrainConstants.gyro);
   DrivetrainCommands driveCommand = new DrivetrainCommands(drivetrain);
   private final Joysticks mainController = new Joysticks(0);
 
