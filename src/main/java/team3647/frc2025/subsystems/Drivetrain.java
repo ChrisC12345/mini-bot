@@ -2,31 +2,27 @@ package team3647.frc2025.subsystems;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
-
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
-import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.Odometry;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 
 import team3647.lib.PeriodicSubsystem;
-import team3647.frc2025.constants.DrivetrainConstants;
+import team3647.frc2025.robot.LimelightHelpers;
 
 
+@SuppressWarnings("unused")
 public class Drivetrain implements PeriodicSubsystem {
     
     public static class PeriodicIO {
@@ -45,12 +41,6 @@ public class Drivetrain implements PeriodicSubsystem {
         rightMotor.getEncoder().setPosition(0);
         this.gyro = gyro;
 
-        this.odometry = new DifferentialDriveOdometry(
-            Rotation2d.fromDegrees(gyro.getAngle()), 
-            leftMotor.getEncoder().getPosition(), 
-            rightMotor.getEncoder().getPosition(),
-            robotPose);
-
         this.poseEstimator = 
             new DifferentialDrivePoseEstimator(
                 kinematics, Rotation2d.fromDegrees(gyro.getAngle()), 
@@ -61,11 +51,11 @@ public class Drivetrain implements PeriodicSubsystem {
     private final SparkMax leftMotor;
     private final SparkMax rightMotor;
     private final ADIS16470_IMU gyro;
-    private final DifferentialDriveOdometry odometry;
     private final DifferentialDrivePoseEstimator poseEstimator;
     private final PIDController pid = new PIDController(0.08, 0, 0);
     private final PeriodicIO periodicIo = new PeriodicIO();
     private Pose2d robotPose;
+    
 
     private final DifferentialDriveKinematics kinematics = 
         new DifferentialDriveKinematics(Units.inchesToMeters(14.0));
@@ -119,18 +109,21 @@ public class Drivetrain implements PeriodicSubsystem {
         public void periodic() {
             readPeriodicInputs();
             writePeriodicOutputs();
-/* 
-            robotPose = odometry.update(
-            Rotation2d.fromDegrees(gyro.getAngle()),
-            leftMotor.getEncoder().getPosition()*0.1*3.14*0.2,
-            rightMotor.getEncoder().getPosition()*0.1*3.14*0.2);
-*/
+
+            LimelightHelpers.PoseEstimate limelightMesaurement = 
+            LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+
+            poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
+            poseEstimator.addVisionMeasurement(
+                limelightMesaurement.pose,
+                limelightMesaurement.timestampSeconds);
+
             robotPose = poseEstimator.update(
                 Rotation2d.fromDegrees(gyro.getAngle()),
-                leftMotor.getEncoder().getPosition()*0.1*3.14*0.2,
-                rightMotor.getEncoder().getPosition()*0.1*3.14*0.2);
+                leftMotor.getEncoder().getPosition()*0.1*Math.PI*0.2,
+                rightMotor.getEncoder().getPosition()*0.1*Math.PI*0.2);
 
-            Logger.recordOutput("Pose", this.robotPose);
+            Logger.recordOutput("Pose", robotPose);
     } 
 
     @Override

@@ -23,7 +23,7 @@ public class DrivetrainConstants {
 
 
     static {
-        configRight.inverted(true);
+        configLeft.inverted(true);
 
         configLeft.idleMode(IdleMode.kBrake);
         configRight.idleMode(IdleMode.kBrake);
