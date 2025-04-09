@@ -23,7 +23,7 @@ public class DrivetrainConstants {
 
 
     static {
-        configLeft.inverted(true);
+        configRight.inverted(true);
 
         configLeft.idleMode(IdleMode.kBrake);
         configRight.idleMode(IdleMode.kBrake);
@@ -33,6 +33,8 @@ public class DrivetrainConstants {
         configLeft.closedLoop.d(0);
 
         leftMotor.configure(configLeft, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        rightMotor.configure(configRight, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
     }
 
 }

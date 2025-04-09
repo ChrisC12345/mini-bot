@@ -46,6 +46,11 @@ public class Drivetrain implements PeriodicSubsystem {
                 kinematics, Rotation2d.fromDegrees(gyro.getAngle()), 
                 0.0,0.0,
                 robotPose);
+
+        LimelightHelpers.setCameraPose_RobotSpace(
+                    "limelight",
+                    Units.inchesToMeters(7), Units.inchesToMeters(4), Units.inchesToMeters(9),
+                    0, 0, 180);
     }
 
     private final SparkMax leftMotor;
@@ -78,7 +83,7 @@ public class Drivetrain implements PeriodicSubsystem {
         
     
         public void drive(double forward, double rotation) {
-            // call drive method 
+            // call drive method
             WheelSpeeds wheelspeeds = DifferentialDrive.arcadeDriveIK(forward, rotation, false);
             periodicIo.controltype = ControlType.kDutyCycle;
             periodicIo.leftOutput = wheelspeeds.left;
@@ -110,14 +115,23 @@ public class Drivetrain implements PeriodicSubsystem {
             readPeriodicInputs();
             writePeriodicOutputs();
 
-            LimelightHelpers.PoseEstimate limelightMesaurement = 
+            LimelightHelpers.PoseEstimate limelightMeasurement = 
             LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
 
-            poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.7,0.7,9999999));
-            poseEstimator.addVisionMeasurement(
-                limelightMesaurement.pose,
-                limelightMesaurement.timestampSeconds);
+            var tags = LimelightHelpers.getRawFiducials("limelight");
+            var tag = tags.length > 0? tags[0].distToCamera : 99999999;
+            var ambiguity = tags.length > 0? tags[0].ambiguity : 99999999;
+            boolean useVisionPose = (ambiguity < 0.5);
+       
+            Logger.recordOutput("Vision Pose", limelightMeasurement.pose);
 
+            if (!limelightMeasurement.pose.equals(Pose2d.kZero) && useVisionPose){
+                poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.05,0.05,9999999).times(tag*0.01));
+                poseEstimator.addVisionMeasurement(
+                    limelightMeasurement.pose,
+                    limelightMeasurement.timestampSeconds);
+            }
+            
             robotPose = poseEstimator.update(
                 Rotation2d.fromDegrees(gyro.getAngle()),
                 leftMotor.getEncoder().getPosition()*0.1*Math.PI*0.2,
