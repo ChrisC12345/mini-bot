@@ -84,7 +84,7 @@ public class Drivetrain implements PeriodicSubsystem {
     
         public void drive(double forward, double rotation) {
             // call drive method
-            WheelSpeeds wheelspeeds = DifferentialDrive.arcadeDriveIK(forward, rotation, false);
+            WheelSpeeds wheelspeeds = DifferentialDrive.arcadeDriveIK(forward, -rotation, false);
             periodicIo.controltype = ControlType.kDutyCycle;
             periodicIo.leftOutput = wheelspeeds.left;
             periodicIo.rightOutput = wheelspeeds.right;
@@ -122,14 +122,14 @@ public class Drivetrain implements PeriodicSubsystem {
             var tag = tags.length > 0? tags[0].distToCamera : 99999999;
             var ambiguity = tags.length > 0? tags[0].ambiguity : 99999999;
             boolean useVisionPose = (ambiguity < 0.5);
-       
             Logger.recordOutput("Vision Pose", limelightMeasurement.pose);
 
             if (!limelightMeasurement.pose.equals(Pose2d.kZero) && useVisionPose){
                 poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.05,0.05,9999999).times(tag*0.01));
                 poseEstimator.addVisionMeasurement(
                     limelightMeasurement.pose,
-                    limelightMeasurement.timestampSeconds);
+                    limelightMeasurement.timestampSeconds - 
+                    LimelightHelpers.getLatency_Pipeline("limelight"));
             }
             
             robotPose = poseEstimator.update(

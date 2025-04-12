@@ -13,8 +13,8 @@ import edu.wpi.first.wpilibj.ADIS16470_IMU;
 
 public class DrivetrainConstants {
 
-    public static final SparkMax leftMotor = new SparkMax(4, MotorType.kBrushless);
-    public static final SparkMax rightMotor = new SparkMax(5, MotorType.kBrushless);
+    public static final SparkMax leftMotor = new SparkMax(5, MotorType.kBrushless);
+    public static final SparkMax rightMotor = new SparkMax(4, MotorType.kBrushless);
 
     public static final ADIS16470_IMU gyro = new ADIS16470_IMU();
 
@@ -23,7 +23,7 @@ public class DrivetrainConstants {
 
 
     static {
-        configRight.inverted(true);
+        configLeft.inverted(true);
 
         configLeft.idleMode(IdleMode.kBrake);
         configRight.idleMode(IdleMode.kBrake);

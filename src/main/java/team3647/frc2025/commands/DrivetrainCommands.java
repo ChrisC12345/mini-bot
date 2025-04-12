@@ -44,8 +44,8 @@ public class DrivetrainCommands {
 
         @Override 
         public boolean isFinished(){
-            return setPoint-0.1 <= drivetrain.getLeftMotorPosition() 
-            && drivetrain.getLeftMotorPosition() <= setPoint+0.1;
+            return setPoint-0.05 <= drivetrain.getLeftMotorPosition() 
+            && drivetrain.getLeftMotorPosition() <= setPoint+0.05;
         }
     };
 } 
