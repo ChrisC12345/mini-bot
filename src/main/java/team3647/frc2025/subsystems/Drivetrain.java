@@ -119,19 +119,26 @@ public class Drivetrain implements PeriodicSubsystem {
             LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
 
             var tags = LimelightHelpers.getRawFiducials("limelight");
-            var tag = tags.length > 0? tags[0].distToCamera : 99999999;
+            var distance = tags.length > 0? tags[0].distToCamera : 99999999;
             var ambiguity = tags.length > 0? tags[0].ambiguity : 99999999;
-            boolean useVisionPose = (ambiguity < 0.5);
+            boolean useVisionPose = (ambiguity < 0.2);
             Logger.recordOutput("Vision Pose", limelightMeasurement.pose);
-
+            
             if (!limelightMeasurement.pose.equals(Pose2d.kZero) && useVisionPose){
-                poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.05,0.05,9999999).times(tag*0.01));
+                poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.05,0.05,9999999).times(distance*0.01));
                 poseEstimator.addVisionMeasurement(
                     limelightMeasurement.pose,
                     limelightMeasurement.timestampSeconds - 
                     LimelightHelpers.getLatency_Pipeline("limelight"));
             }
-            
+                     
+            /* 
+            poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.05,0.05,9999999).times(tag*0.01));
+            poseEstimator.addVisionMeasurement(
+                    limelightMeasurement.pose,
+                    limelightMeasurement.timestampSeconds - 
+                    LimelightHelpers.getLatency_Pipeline("limelight")); 
+             */
             robotPose = poseEstimator.update(
                 Rotation2d.fromDegrees(gyro.getAngle()),
                 leftMotor.getEncoder().getPosition()*0.1*Math.PI*0.2,
