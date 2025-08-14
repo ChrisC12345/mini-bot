@@ -4,6 +4,8 @@
 
 package team3647.frc2025.robot;
 
+import java.util.Optional;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -11,7 +13,14 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import choreo.Choreo;
+import choreo.trajectory.DifferentialSample;
+import choreo.trajectory.SwerveSample;
+import choreo.trajectory.Trajectory;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import team3647.frc2025.constants.DrivetrainConstants;
+import team3647.frc2025.subsystems.Drivetrain;
 
 /**
  * This is a demo program showing the use of the DifferentialDrive class, specifically it contains
@@ -21,6 +30,11 @@ public class Robot extends LoggedRobot {
   @SuppressWarnings("unused")
   private final RobotContainer robotContainer = new RobotContainer();
 
+  private final Optional<Trajectory<DifferentialSample>> trajectory = Choreo.loadTrajectory("myTrajectory");
+      
+  private final Drivetrain drivetrain = new Drivetrain(
+      DrivetrainConstants.leftMotor, DrivetrainConstants.rightMotor, DrivetrainConstants.gyro);
+  private final Timer timer = new Timer();
 
 
 
@@ -51,6 +65,7 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void teleopPeriodic() {
-
   }
+
+
 }

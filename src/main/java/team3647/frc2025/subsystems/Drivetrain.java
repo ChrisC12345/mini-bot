@@ -5,7 +5,9 @@ import org.littletonrobotics.junction.Logger;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkMax;
 
+import choreo.trajectory.DifferentialSample;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.LTVUnicycleController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,8 +18,9 @@ import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
-
+import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
 import team3647.lib.PeriodicSubsystem;
 import team3647.frc2025.robot.LimelightHelpers;
 
@@ -107,7 +110,6 @@ public class Drivetrain implements PeriodicSubsystem {
     
         public void setLeftMotorPosition(){
             leftMotor.getEncoder().setPosition(0);
-    
         }
     
         @Override
@@ -146,6 +148,8 @@ public class Drivetrain implements PeriodicSubsystem {
 
             Logger.recordOutput("Pose", robotPose);
     } 
+
+
 
     @Override
     public String getName() {
