@@ -5,55 +5,27 @@ import org.littletonrobotics.junction.Logger;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkMax;
 
-import choreo.trajectory.DifferentialSample;
 import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.controller.LTVUnicycleController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
-import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
+import team3647.frc2025.constants.DrivetrainConstants;
+import team3647.lib.LimelightHelpers;
 import team3647.lib.PeriodicSubsystem;
-import team3647.frc2025.robot.LimelightHelpers;
-
 
 @SuppressWarnings("unused")
 public class Drivetrain implements PeriodicSubsystem {
-    
+
     public static class PeriodicIO {
-        //define inputs and outputs
         public double leftOutput;
         public double rightOutput;
-        ControlType controltype = ControlType.kPosition;
-    }
-
-        
-    public Drivetrain(SparkMax left, SparkMax right, ADIS16470_IMU gyro){
-        robotPose = new Pose2d(0,0,new Rotation2d());
-        leftMotor = left;
-        rightMotor = right;
-        leftMotor.getEncoder().setPosition(0);
-        rightMotor.getEncoder().setPosition(0);
-        this.gyro = gyro;
-
-        this.poseEstimator = 
-            new DifferentialDrivePoseEstimator(
-                kinematics, Rotation2d.fromDegrees(gyro.getAngle()), 
-                0.0,0.0,
-                robotPose);
-
-        LimelightHelpers.setCameraPose_RobotSpace(
-                    "limelight",
-                    Units.inchesToMeters(7), Units.inchesToMeters(4), Units.inchesToMeters(9),
-                    0, 0, 180);
+        public ControlType controlType = ControlType.kPosition;
+        public Pose2d pose = new Pose2d();
     }
 
     private final SparkMax leftMotor;
@@ -61,99 +33,127 @@ public class Drivetrain implements PeriodicSubsystem {
     private final ADIS16470_IMU gyro;
     private final DifferentialDrivePoseEstimator poseEstimator;
     private final PIDController pid = new PIDController(0.08, 0, 0);
-    private final PeriodicIO periodicIo = new PeriodicIO();
-    private Pose2d robotPose;
-    
+    private final PeriodicIO periodicIO = new PeriodicIO();
 
-    private final DifferentialDriveKinematics kinematics = 
-        new DifferentialDriveKinematics(Units.inchesToMeters(14.0));
+    public Drivetrain(SparkMax left, SparkMax right, ADIS16470_IMU gyro) {
+        leftMotor = left;
+        rightMotor = right;
+        leftMotor.getEncoder().setPosition(0);
+        rightMotor.getEncoder().setPosition(0);
+        this.gyro = gyro;
 
-        // write drive method
-    
-        @Override 
-        public void readPeriodicInputs(){
-            Logger.recordOutput("Pose",robotPose);
-        }
-    
-        @Override
-        public void writePeriodicOutputs() {
-            // set periodicio leftoutput and rightoutput equal to a setreference thing
-            leftMotor.getClosedLoopController().setReference(periodicIo.leftOutput, periodicIo.controltype);
-            rightMotor.getClosedLoopController().setReference(periodicIo.rightOutput, periodicIo.controltype);
-            SmartDashboard.putNumber("LeftMotorPosition", getLeftMotorPosition());
-            SmartDashboard.putNumber("RightMotorPosition", getRightMotorPosition());
-        }
-        
-    
-        public void drive(double forward, double rotation) {
-            // call drive method
-            WheelSpeeds wheelspeeds = DifferentialDrive.arcadeDriveIK(forward, -rotation, false);
-            periodicIo.controltype = ControlType.kDutyCycle;
-            periodicIo.leftOutput = wheelspeeds.left;
-            periodicIo.rightOutput = wheelspeeds.right;
-        }
-    
-        public void turn(double setPoint){
-            // turn wheel to setPoint
-            periodicIo.leftOutput = setPoint;
-            periodicIo.controltype = ControlType.kPosition;
-            SmartDashboard.putNumber("PID Calc", periodicIo.leftOutput);
-        }
-        
-        public double getLeftMotorPosition(){
-            return leftMotor.getEncoder().getPosition();
-        }
-    
-        public double getRightMotorPosition(){
-            return rightMotor.getEncoder().getPosition();
-        }
-    
-        public void setLeftMotorPosition(){
-            leftMotor.getEncoder().setPosition(0);
-        }
-    
-        @Override
-        public void periodic() {
-            readPeriodicInputs();
-            writePeriodicOutputs();
+        poseEstimator = new DifferentialDrivePoseEstimator(
+            DrivetrainConstants.KINEMATICS,
+            getHeading(),
+            0.0, 0.0,
+            new Pose2d());
 
-            LimelightHelpers.PoseEstimate limelightMeasurement = 
+        LimelightHelpers.setCameraPose_RobotSpace(
+            "limelight",
+            Units.inchesToMeters(7), Units.inchesToMeters(4), Units.inchesToMeters(9),
+            0, 0, 180);
+    }
+
+    // --- Sensors ---
+
+    public Rotation2d getHeading() {
+        return Rotation2d.fromDegrees(gyro.getAngle());
+    }
+
+    private double getLeftDistanceMeters() {
+        return (leftMotor.getEncoder().getPosition() / DrivetrainConstants.GEAR_RATIO)
+            * 2 * Math.PI * DrivetrainConstants.WHEEL_RADIUS_METERS;
+    }
+
+    private double getRightDistanceMeters() {
+        return (rightMotor.getEncoder().getPosition() / DrivetrainConstants.GEAR_RATIO)
+            * 2 * Math.PI * DrivetrainConstants.WHEEL_RADIUS_METERS;
+    }
+
+    public double getLeftMotorPosition() {
+        return leftMotor.getEncoder().getPosition();
+    }
+
+    public double getRightMotorPosition() {
+        return rightMotor.getEncoder().getPosition();
+    }
+
+    public Pose2d getPose() {
+        return periodicIO.pose;
+    }
+
+    // --- Drive methods ---
+
+    public void drive(double forward, double rotation) {
+        WheelSpeeds wheelspeeds = DifferentialDrive.arcadeDriveIK(forward, -rotation, false);
+        periodicIO.controlType = ControlType.kDutyCycle;
+        periodicIO.leftOutput = wheelspeeds.left;
+        periodicIO.rightOutput = wheelspeeds.right;
+    }
+
+    // Method 2: SparkMax onboard PID at 1000Hz
+    public void turn(double setPoint) {
+        periodicIO.controlType = ControlType.kPosition;
+        periodicIO.leftOutput = setPoint;
+    }
+
+    // Method 1: WPILib PIDController at 50Hz
+    public void setAngle(double targetRotations) {
+        periodicIO.controlType = ControlType.kDutyCycle;
+        periodicIO.leftOutput = pid.calculate(getLeftMotorPosition(), targetRotations);
+    }
+
+    public double degreesToRotations(double degrees) {
+        return (degrees / 360.0) * DrivetrainConstants.GEAR_RATIO;
+    }
+
+    public void setLeftEncoderPosition(double position) {
+        leftMotor.getEncoder().setPosition(position);
+    }
+
+    // --- Periodic ---
+
+    @Override
+    public void readPeriodicInputs() {
+        // Update odometry
+        periodicIO.pose = poseEstimator.update(
+            getHeading(),
+            getLeftDistanceMeters(),
+            getRightDistanceMeters());
+
+        // Add vision measurement if valid
+        LimelightHelpers.PoseEstimate limelightMeasurement =
             LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
 
+        if (limelightMeasurement != null && !limelightMeasurement.pose.equals(Pose2d.kZero)) {
             var tags = LimelightHelpers.getRawFiducials("limelight");
-            var distance = tags.length > 0? tags[0].distToCamera : 99999999;
-            var ambiguity = tags.length > 0? tags[0].ambiguity : 99999999;
-            boolean useVisionPose = (ambiguity < 0.2);
-            Logger.recordOutput("Vision Pose", limelightMeasurement.pose);
-            
-            if (!limelightMeasurement.pose.equals(Pose2d.kZero) && useVisionPose){
-                poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.05,0.05,9999999).times(distance*0.01));
+            double ambiguity = tags.length > 0 ? tags[0].ambiguity : 1.0;
+            double distance = tags.length > 0 ? tags[0].distToCamera : 9999;
+
+            if (ambiguity < 0.2) {
+                poseEstimator.setVisionMeasurementStdDevs(
+                    VecBuilder.fill(0.05, 0.05, 9999999).times(distance * 0.01));
+                // timestampSeconds is already latency-corrected by LimelightHelpers
                 poseEstimator.addVisionMeasurement(
                     limelightMeasurement.pose,
-                    limelightMeasurement.timestampSeconds - 
-                    LimelightHelpers.getLatency_Pipeline("limelight"));
+                    limelightMeasurement.timestampSeconds);
             }
-                     
-            /* 
-            poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(0.05,0.05,9999999).times(tag*0.01));
-            poseEstimator.addVisionMeasurement(
-                    limelightMeasurement.pose,
-                    limelightMeasurement.timestampSeconds - 
-                    LimelightHelpers.getLatency_Pipeline("limelight")); 
-             */
-            robotPose = poseEstimator.update(
-                Rotation2d.fromDegrees(gyro.getAngle()),
-                leftMotor.getEncoder().getPosition()*0.1*Math.PI*0.2,
-                rightMotor.getEncoder().getPosition()*0.1*Math.PI*0.2);
+        }
+    }
 
-            Logger.recordOutput("Pose", robotPose);
-    } 
+    @Override
+    public void writePeriodicOutputs() {
+        leftMotor.getClosedLoopController().setReference(periodicIO.leftOutput, periodicIO.controlType);
+        rightMotor.getClosedLoopController().setReference(periodicIO.rightOutput, periodicIO.controlType);
 
-
+        Logger.recordOutput("Drivetrain/Pose", periodicIO.pose);
+        Logger.recordOutput("Drivetrain/LeftDistanceMeters", getLeftDistanceMeters());
+        Logger.recordOutput("Drivetrain/RightDistanceMeters", getRightDistanceMeters());
+        Logger.recordOutput("Drivetrain/HeadingDegrees", gyro.getAngle());
+    }
 
     @Override
     public String getName() {
-        return "drivetrain";
+        return "Drivetrain";
     }
-    
 }

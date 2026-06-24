@@ -25,7 +25,8 @@ public class RobotContainer {
     CommandScheduler.getInstance().registerSubsystem(drivetrain);
     drivetrain.setDefaultCommand(driveCommand.drive(mainController::getLeftStickY,mainController::getRightStickX));
 
-    mainController.buttonA.onTrue(driveCommand.turnWheel());
+    mainController.buttonA.onTrue(driveCommand.turnWheel());      // Method 2: SparkMax onboard PID
+    mainController.buttonB.onTrue(driveCommand.turnWheelPID());   // Method 1: WPILib PIDController
 
     
     configureBindings();

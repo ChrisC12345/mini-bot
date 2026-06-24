@@ -1,14 +1,14 @@
 //LimelightHelpers v1.11 (REQUIRES LLOS 2025.0 OR LATER)
 
-package team3647.frc2025.robot;
+package team3647.lib;
 
 import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.TimestampedDoubleArray;
-import team3647.frc2025.robot.LimelightHelpers.LimelightResults;
-import team3647.frc2025.robot.LimelightHelpers.PoseEstimate;
+import team3647.lib.LimelightHelpers.LimelightResults;
+import team3647.lib.LimelightHelpers.PoseEstimate;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;

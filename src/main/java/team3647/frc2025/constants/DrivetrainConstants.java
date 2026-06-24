@@ -7,11 +7,19 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 
 
 
 public class DrivetrainConstants {
+
+    public static final double GEAR_RATIO = 5.0;
+    public static final double WHEEL_RADIUS_METERS = Units.inchesToMeters(2.0);
+    public static final double TRACK_WIDTH_METERS = Units.inchesToMeters(14.0);
+    public static final DifferentialDriveKinematics KINEMATICS =
+        new DifferentialDriveKinematics(TRACK_WIDTH_METERS);
 
     public static final SparkMax leftMotor = new SparkMax(5, MotorType.kBrushless);
     public static final SparkMax rightMotor = new SparkMax(4, MotorType.kBrushless);
